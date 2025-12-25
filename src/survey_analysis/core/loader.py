@@ -62,7 +62,11 @@ def load_raw_data(config: SurveyConfig) -> pd.DataFrame:
         encoding = detect_encoding(file_path)
 
     df = pd.read_csv(file_path, encoding=encoding)
-    print(f"データ読み込み完了: {len(df)} 行 × {len(df.columns)} 列")
+    warnings.warn(
+        f"データ読み込み完了: {len(df)} 行 × {len(df.columns)} 列",
+        UserWarning,
+        stacklevel=2
+    )
 
     return df
 
@@ -154,7 +158,11 @@ def convert_ordered_categories(
         # 順序に含まれない値があれば警告
         missing_from_order = set(existing_values) - set(order)
         if missing_from_order:
-            print(f"警告: '{col_name}' に順序定義にない値があります: {missing_from_order}")
+            warnings.warn(
+                f"'{col_name}' に順序定義にない値があります: {missing_from_order}",
+                UserWarning,
+                stacklevel=2
+            )
 
         # カテゴリカル型に変換
         df[col_name] = pd.Categorical(
@@ -208,7 +216,11 @@ def add_derived_columns(
             try:
                 df[col_name] = func(df, config)
             except Exception as e:
-                print(f"警告: 派生カラム '{col_name}' の生成に失敗: {e}")
+                warnings.warn(
+                    f"派生カラム '{col_name}' の生成に失敗: {e}",
+                    UserWarning,
+                    stacklevel=2
+                )
 
     return df
 
@@ -229,9 +241,12 @@ def load_and_prepare_data(
     Returns:
         pd.DataFrame: 前処理済みデータフレーム
     """
-    print("=" * 60)
-    print("データの読み込みと前処理")
-    print("=" * 60)
+    # パイプライン実行ログ（UserWarningとして出力）
+    warnings.warn(
+        "データの読み込みと前処理を開始",
+        UserWarning,
+        stacklevel=2
+    )
 
     # 1. 生データ読み込み
     df = load_raw_data(config)
@@ -250,8 +265,11 @@ def load_and_prepare_data(
     if derivations:
         df = add_derived_columns(df, config, derivations)
 
-    print(f"\n前処理完了: {len(df)} 行 × {len(df.columns)} 列")
-    print("=" * 60)
+    warnings.warn(
+        f"前処理完了: {len(df)} 行 × {len(df.columns)} 列",
+        UserWarning,
+        stacklevel=2
+    )
 
     return df
 

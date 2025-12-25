@@ -7,7 +7,7 @@ survey-analysis-coreパッケージのテスト用フィクスチャ定義。
 import pytest
 import pandas as pd
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Any
 
 
 # =============================================================================
@@ -26,7 +26,10 @@ class MockSurveyConfig(SurveyConfig):
         raw_data_path: Path = None,
         output_dir: Path = None,
         category_orders: Dict[str, List[str]] = None,
-        alpha: float = 0.05
+        alpha: float = 0.05,
+        encoding: str = 'utf-8',
+        stopwords: List[str] = None,
+        figure_settings: Dict[str, Any] = None
     ):
         self._questions = questions or {
             'age': '年齢',
@@ -38,6 +41,9 @@ class MockSurveyConfig(SurveyConfig):
         self._output_dir = output_dir or Path('/tmp/test_output')
         self._category_orders = category_orders or {}
         self._alpha = alpha
+        self._encoding = encoding
+        self._stopwords = stopwords or ['の', 'に', 'は', 'を', 'た', 'が', 'で']
+        self._figure_settings = figure_settings or {'figsize': (10, 6), 'dpi': 100}
 
     @property
     def questions(self) -> Dict[str, str]:
@@ -58,6 +64,18 @@ class MockSurveyConfig(SurveyConfig):
     @property
     def alpha(self) -> float:
         return self._alpha
+
+    @property
+    def encoding(self) -> str:
+        return self._encoding
+
+    @property
+    def stopwords(self) -> List[str]:
+        return self._stopwords
+
+    @property
+    def figure_settings(self) -> Dict[str, Any]:
+        return self._figure_settings
 
 
 # =============================================================================

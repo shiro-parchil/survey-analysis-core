@@ -134,24 +134,23 @@ def create_multiselect_crosstab(
     if row_col not in df.columns or col_col not in df.columns:
         raise ValueError("カラムが見つかりません")
 
-    # 複数選択を展開
-    rows = []
-    for _, row in df.iterrows():
-        row_value = row[row_col]
-        col_values = row[col_col]
+    # 作業用データフレーム作成（必要なカラムのみ）
+    work_df = df[[row_col, col_col]].copy()
 
-        if pd.isna(col_values) or not isinstance(col_values, str):
-            continue
+    # 欠損値と非文字列を除外
+    work_df = work_df.dropna(subset=[col_col])
+    work_df = work_df[work_df[col_col].apply(lambda x: isinstance(x, str))]
 
-        for col_value in col_values.split(delimiter):
-            col_value = col_value.strip()
-            if col_value:
-                rows.append({
-                    row_col: row_value,
-                    col_col: col_value
-                })
+    if len(work_df) == 0:
+        return pd.DataFrame()
 
-    expanded_df = pd.DataFrame(rows)
+    # explode()で複数選択を展開（ベクトル化処理でiterrows()より高速）
+    work_df[col_col] = work_df[col_col].str.split(delimiter)
+    expanded_df = work_df.explode(col_col)
+
+    # 空白を除去し、空文字を除外
+    expanded_df[col_col] = expanded_df[col_col].str.strip()
+    expanded_df = expanded_df[expanded_df[col_col] != '']
 
     if len(expanded_df) == 0:
         return pd.DataFrame()
@@ -185,7 +184,11 @@ def analyze_crosstabs_by_tier(
             ct = create_crosstab_with_totals(df, row_var, col_var, config)
             results[key] = ct
         except Exception as e:
-            print(f"警告: {key} のクロス集計に失敗: {e}")
+            warnings.warn(
+                f"{key} のクロス集計に失敗: {e}",
+                UserWarning,
+                stacklevel=2
+            )
 
     return results
 
@@ -336,6 +339,6 @@ def export_crosstabs_to_csv(
         filepath = output_path / filename
         ct.to_csv(filepath, encoding='utf-8-sig')
         saved_files.append(str(filepath))
-        print(f"  ✓ 保存: {filename}")
+        warnings.warn(f"保存完了: {filename}", UserWarning, stacklevel=2)
 
     return saved_files
