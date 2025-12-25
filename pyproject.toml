@@ -1,0 +1,91 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "survey-analysis-core"
+version = "1.0.0"
+description = "汎用アンケート解析コアライブラリ - 依存注入パターンで複数プロジェクト対応"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "SHIRO Inc.", email = "dev@shiro.co.jp"}
+]
+keywords = [
+    "survey",
+    "analysis",
+    "statistics",
+    "crosstab",
+    "visualization",
+    "japanese",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: Japanese",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+
+dependencies = [
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "statsmodels>=0.14.0",
+    "matplotlib>=3.7.0",
+    "seaborn>=0.12.0",
+    "japanize-matplotlib>=1.1.3",
+    "chardet>=5.2.0",
+    "tqdm>=4.66.0",
+]
+
+[project.optional-dependencies]
+text = [
+    "janome>=0.5.0",
+    "wordcloud>=1.9.0",
+    "scikit-learn>=1.3.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "ruff>=0.1.0",
+]
+all = [
+    "survey-analysis-core[text,dev]",
+]
+
+[project.urls]
+Homepage = "https://github.com/shiro-parchil/survey-analysis-core"
+Repository = "https://github.com/shiro-parchil/survey-analysis-core.git"
+Issues = "https://github.com/shiro-parchil/survey-analysis-core/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/survey_analysis"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/tests",
+    "/README.md",
+    "/CHANGELOG.md",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]
